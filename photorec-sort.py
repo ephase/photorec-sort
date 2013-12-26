@@ -33,23 +33,26 @@ for directory in os.listdir(args.source):
         for root, dirs, files, in os.walk(args.source+'/'+directory):
             for file in files:
                 numbers_of_files+=1
-                extension = os.path.splitext(file)[1][1:]
+                extension = os.path.splitext(file)[1][1:].lower()
+                print (extension)
                 try:
-                    path, filename = getattr(processors, 'process_'+extension)(os.path.join(args.source,directory,file))
+                    path, filename = getattr(processors, 'process_' + extension)(os.path.join(args.source,directory,file))
                 except AttributeError:
                     path, filename = processors.process_default(file)
-                destination = os.path.join(args.dest,directory,filename)
-                if not os.path.exists(destination):
-                   os.mkdir(destination)
-                if os.path.exists(os.path.join(destination,file)):
-                    print ('WARNING: this file was not copied :', os.path.join(args.source, directory ,file))
+                destination_dir = os.path.join(args.dest,path)
+                if not os.path.exists(destination_dir):
+                    os.makedirs(destination_dir)
+                destination_file = os.path.join(destination_dir,filename+'.'+extension)
+                increment=0
+                while os.path.exists(destination_file):
+                    increment=+1
+                    destination_file = os.path.join(destination_dir,filename+'_'+str(increment)+'.'+extension)
+                if args.move:
+                    if args.verbose : print ('Moving ', file,' from ', os.path.join(args.source, directory) ,' to ', destination_file)
+                    shutil.move(os.path.join(args.source, directory, file), destination_file)
                 else:
-                    if args.move:
-                        print ('Moving ', file,' from ', os.path.join(args.source, directory) ,' to ', destination)
-                        shutil.move(os.path.join(args.source, directory, file), destination)
-                    else:
-                        if args.verbose : print ('Copying ', file,' from ', os.path.join(args.source, directory ,file), ' to ', destination)
-                        shutil.copy2(os.path.join(args.source, directory, file), destination)
+                    if args.verbose : print ('Copying ', file,' from ', os.path.join(args.source, directory ,file), ' to ', destination_file)
+                    shutil.copy2(os.path.join(args.source, directory, file), destination_file)
         if args.verbose:
             print ('valid directory found : ', directory,' with : ', numbers_of_files)
 print ('Directory processed : ',numbers_of_directory)
