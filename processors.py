@@ -23,15 +23,29 @@ def process_jpg(f):
 
 def process_mp3(f):
     tag = EasyID3(f)
-    artist = tag['artist'] if tag['artist'] != '' else 'unknow'
-    title = tag['title'] if tag['title'] else 'unknow'
-    album = tag['album']
-    track = tag['tracknumber']
+    try:
+        artist = tag['artist']
+    except: 
+        artist = 'unknow'
+    try:
+        title = tag['title'] 
+    except:
+        title = 'unknow'
+    try:
+        album = tag['album']
+    except:
+        album = False
+    try:
+        track = tag['tracknumber']
+    except:
+        track =  False
+
     
     folder = 'mp3/'+''.join(artist)
     if album:
         folder += '/'+''.join(album)
     if track:
-        name = ''.join(track) + ' - '
-    name += ''.join(title)
+        name = ''.join(track) + ' - ' + ''.join(title)
+    else:
+        name = ''.join(title)
     return folder,name
