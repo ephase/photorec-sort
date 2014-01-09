@@ -22,7 +22,10 @@ def process_jpg(f):
         return process_default(f)
 
 def process_mp3(f):
-    tag = EasyID3(f)
+    try:
+        tag = EasyID3(f)
+    except:
+        return 'mp3/','unknow'
     try:
         artist = tag['artist']
     except: 

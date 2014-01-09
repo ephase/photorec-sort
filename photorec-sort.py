@@ -34,7 +34,6 @@ for directory in os.listdir(args.source):
             for file in files:
                 numbers_of_files+=1
                 extension = os.path.splitext(file)[1][1:].lower()
-                print (extension)
                 try:
                     path, filename = getattr(processors, 'process_' + extension)(os.path.join(args.source,directory,file))
                 except AttributeError:
@@ -46,6 +45,7 @@ for directory in os.listdir(args.source):
                 increment=0
                 while os.path.exists(destination_file):
                     increment=+1
+                    print (increment)
                     destination_file = os.path.join(destination_dir,filename+'_'+str(increment)+'.'+extension)
                 if args.move:
                     if args.verbose : print ('Moving ', file,' from ', os.path.join(args.source, directory) ,' to ', destination_file)
