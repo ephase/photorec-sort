@@ -27,28 +27,30 @@ def process_mp3(f):
     except:
         return 'mp3/','unknow'
     try:
-        artist = tag['artist']
+        artist = ''.join(tag['artist'])
     except: 
         artist = 'unknow'
     try:
-        title = tag['title'] 
+        title = ''.join(tag['title']) 
     except:
         title = 'unknow'
     try:
-        album = tag['album']
+        album = ''.join(tag['album'])
     except:
         album = False
     try:
-        track = tag['tracknumber']
+        track = ''.join(tag['tracknumber'])
     except:
         track =  False
 
     
-    folder = 'mp3/'+''.join(artist)
+    folder = 'mp3/'+artist.replace('/','.')
     if album:
-        folder += '/'+''.join(album)
+        folder += '/'+album.replace('/','.')
     if track:
-        name = ''.join(track) + ' - ' + ''.join(title)
+        name = track.replace('/','.') + ' - ' + title.replace('/','.')
+
     else:
-        name = ''.join(title)
-    return folder.replace('/','.'),name.replace('/','.')
+        name = title.replace('/','.')
+    print (folder,name)
+    return folder,name
