@@ -45,7 +45,6 @@ for directory in os.listdir(args.source):
                 increment=0
                 while os.path.exists(destination_file):
                     increment+=1
-                    print (increment)
                     destination_file = os.path.join(destination_dir,filename+'_'+str(increment)+'.'+extension)
                 if args.move:
                     if args.verbose : print ('Moving ', file,' from ', os.path.join(args.source, directory) ,' to ', destination_file)

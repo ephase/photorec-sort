@@ -12,13 +12,13 @@ def process_default(f):
 
 def process_jpg(f):
     p = GExiv2.Metadata(f)
-    if p:
+    try: 
         exivDate = datetime.strptime(p['Exif.Photo.DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')
         folder = 'jpg/'+exivDate.strftime('%Y')+'/'+exivDate.strftime('%m')
         name = exivDate.strftime('%Y')+exivDate.strftime('%m')+exivDate.strftime('%d')\
             + "_" + exivDate.strftime('%H') + exivDate.strftime('%M') + exivDate.strftime('%S')
         return folder,name
-    else:
+    except:
         return process_default(f)
 
 def process_mp3(f):
@@ -51,4 +51,4 @@ def process_mp3(f):
         name = ''.join(track) + ' - ' + ''.join(title)
     else:
         name = ''.join(title)
-    return folder,name
+    return folder.replace('/','.'),name.replace('/','.')
