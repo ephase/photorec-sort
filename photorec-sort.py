@@ -44,7 +44,7 @@ for directory in os.listdir(args.source):
                 destination_file = os.path.join(destination_dir,filename+'.'+extension)
                 increment=0
                 while os.path.exists(destination_file):
-                    increment=+1
+                    increment+=1
                     print (increment)
                     destination_file = os.path.join(destination_dir,filename+'_'+str(increment)+'.'+extension)
                 if args.move:
