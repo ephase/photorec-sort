@@ -5,7 +5,10 @@ import shutil
 import sys
 import argparse
 import re
+import logging
 import processors
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
 
 parser = argparse.ArgumentParser(description='Sort Photorec results by file type')
 parser.add_argument('--source',
@@ -56,39 +59,39 @@ for directory in os.listdir(args.source):
 
                 try:
                     path, filename = getattr(processors, 'process_' + extension)(
-                            os.path.join(args.source, directory,
-                                         file))
+                        os.path.join(args.source, directory, file))
 
                 except AttributeError:
                     path, filename = processors.process_default(file)
 
-                destination_dir = os.path.join(args.dest, path)
-                if not os.path.exists(destination_dir):
-                    os.makedirs(destination_dir)
-                destination_file = os.path.join(destination_dir,
-                                                filename + '.' + extension)
-                increment = 0
-                while os.path.exists(destination_file):
-                    increment += 1
+                if filename:
+                    destination_dir = os.path.join(args.dest, path)
+                    if not os.path.exists(destination_dir):
+                        os.makedirs(destination_dir)
                     destination_file = os.path.join(destination_dir,
-                                                    filename +
-                                                    '_' + str(increment) +
-                                                    '.' + extension)
-                if args.move:
-                    if args.verbose:
-                        print('Moving ', file, ' from ',
-                              os.path.join(args.source, directory),
-                              ' to ', destination_file)
+                                                    filename + '.' + extension)
+                    increment = 0
+                    while os.path.exists(destination_file):
+                        increment += 1
+                        destination_file = os.path.join(destination_dir,
+                                                        filename +
+                                                        '_' + str(increment) +
+                                                        '.' + extension)
+                    if args.move:
+                        if args.verbose:
+                            print('Moving ', file, ' from ',
+                                  os.path.join(args.source, directory),
+                                  ' to ', destination_file)
 
-                    shutil.move(os.path.join(args.source, directory, file),
-                                destination_file)
-                else:
-                    if args.verbose:
-                        print('Copying ', file, ' from ',
-                              os.path.join(args.source, directory, file),
-                              ' to ', destination_file)
-                    shutil.copy2(os.path.join(args.source, directory, file),
-                                 destination_file)
+                        shutil.move(os.path.join(args.source, directory, file),
+                                    destination_file)
+                    else:
+                        if args.verbose:
+                            print('Copying ', file, ' from ',
+                                  os.path.join(args.source, directory, file),
+                                  ' to ', destination_file)
+                        shutil.copy2(os.path.join(args.source, directory, file),
+                                     destination_file)
         if args.verbose:
             print('valid directory found : ', directory, ' with : ', numbers_of_files)
 print('Directory processed : ', numbers_of_directory)
