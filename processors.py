@@ -7,11 +7,25 @@ from mutagenx.easyid3 import EasyID3
 from datetime import datetime
 import logging
 
+
+extension_to_function = {
+    'jpg': process_image,
+    'mp3': process_music,
+}
+
+
+def process(file, extension):
+    try:
+        return extension_to_function[extension](file)
+    except IndexError:
+        return process_default(file)
+
+
 def process_default(f):
     return os.path.splitext(f)[1][1:], os.path.splitext(os.path.split(f)[1])[0]
 
 
-def process_jpg(f):
+def process_image(f):
     try:
         b = open(f, 'rb')
         p = exifread.process_file(b, stop_tag='EXIF DateTimeOriginal', details=False)
@@ -24,13 +38,13 @@ def process_jpg(f):
         return folder, name
     except:
         b = os.stat(f)
-        if b.st_size < 512000:
+        if b.st_size < 256000:
             logging.info("%s is too small" % (f))
             return False, False
         return process_default(f)
 
 
-def process_mp3(f):
+def process_music(f):
     try:
         tag = EasyID3(f)
     except:
