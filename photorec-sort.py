@@ -25,15 +25,20 @@ def setup_cli():
                         help='do not copy files, move it',
                         dest='move', action='store_true')
 
-    parser.add_argument('--filetypes',
-                        help='text file containing file type for grouping *NOT IMPLEMENTED*',
-                        metavar='FILE')
-
-    parser.add_argument('--verbose',
-                        '-v',
+    parser.add_argument('-v', '--verbose',
                         dest='verbose',
                         action='store_true',
                         help='verbose output')
+
+    parser.add_argument('-k', '--only-known-filetype',
+                        help='Process only known filetype',
+                        dest='only_known_fyletype',
+                        action='store_true')
+
+    parser.add_argument('-d', '--dry-run',
+                        help='',
+                        dest='dry_run',
+                        action='store_true')
 
     return parser
 
@@ -51,15 +56,17 @@ def parse_args():
     if not os.path.exists(args.dest):
         logging.error('Destination directory does no exist')
         sys.exit()
+    if args.dry_run:
+        logging.info("DRY RUN : no change will be made")
 
     return args
 
 
-def handle_file(file, args):
+def handle_file(file, directory,  args):
     extension = os.path.splitext(file)[1][1:].lower()
 
-    path, filename = processors.proces(os.path.join(args.source, directory, file),
-                                       extension)
+    path, filename = processors.process(os.path.join(directory, file),
+                                        extension)
 
     if filename:
         destination_dir = os.path.join(args.dest, path)
@@ -75,36 +82,45 @@ def handle_file(file, args):
                                             filename +
                                             '_' + str(increment) +
                                             '.' + extension)
+            logging.info('Dry_run : moving %s to %s', file, destination_file)
+            return
+
         if args.move:
-            logging.info('Moving %s to %s' % (file, destination_file))
-            shutil.move(os.path.join(args.source, directory, file),
-                        destination_file)
+            logging.info('Moving %s to %s', file, destination_file)
+            if not args.dry_run:
+                shutil.move(os.path.join(directory, file),
+                            destination_file)
         else:
-            logging.info('Moving %s to %s' % (file, destination_file))
-            shutil.copy2(os.path.join(args.source, directory, file),
-                         destination_file)
+            logging.info('Copying %s to %s', file, destination_file)
+            if not args.dry_run:
+                shutil.copy2(os.path.join(directory, file),
+                             destination_file)
 
 
 def directories():
     for directory in os.listdir(args.source):
-        is_pr_directory = re.search('^recup_dir.[0-9]*', directory)
-        if is_pr_directory:
-            yield os.path.join(args.source, directory)
+        logging.debug("Found a directory : %s", directory)
+        yield os.path.join(args.source, directory)
 
 
 def files():
     for directory in directories():
         for _, _, files, in os.walk(directory):
             for file in files:
-                yield file
+                yield directory, file
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+    logging.basicConfig(
+        format='%(levelname)s:%(message)s',
+        level=logging.DEBUG
+    )
+    logging.info("Starting photorec sort")
     args = parse_args()
 
-    for file in files():
-        handle_file(file, args)
+    for dir, file in files():
+        logging.debug("Process file : %s in %s", file, dir)
+        handle_file(file, dir, args)
 
 # logging.info('valid directory %s with %s: ' % (directory, numbers_of_files))
 # logging.info('Directory processed %s ' % (numbers_of_directory))
