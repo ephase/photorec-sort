@@ -82,8 +82,6 @@ def handle_file(file, directory,  args):
                                             filename +
                                             '_' + str(increment) +
                                             '.' + extension)
-            logging.info('Dry_run : moving %s to %s', file, destination_file)
-            return
 
         if args.move:
             logging.info('Moving %s to %s', file, destination_file)
@@ -113,7 +111,7 @@ def files():
 if __name__ == '__main__':
     logging.basicConfig(
         format='%(levelname)s:%(message)s',
-        level=logging.DEBUG
+        level=logging.INFO
     )
     logging.info("Starting photorec sort")
     args = parse_args()
